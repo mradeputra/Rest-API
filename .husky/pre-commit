@@ -26,6 +26,13 @@ npm run check-types ||
     false;
 }
 
+# unit tests
+npm run test || {
+    echo 'Unit tests failed';
+    echo 'Add changes and try commit again.';
+    false;
+}
+
 #build first to check if success
 npm run build || 
 {
