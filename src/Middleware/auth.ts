@@ -17,11 +17,14 @@ const uow = new UnitOfWork()
 export default function permit(...roleTypes: string[]) {
   return async (req: Request, res: Response, next: NextFunction) => {
     const user = res.locals.user
-    const role = await uow.RoleRepository.GetByIdAsync(user.roleId)
-    if (!user || !role) {
+
+    if (!user) {
       return res.status(401).json(CustomResponse(401, false))
     }
-
+    const role = await uow.RoleRepository.GetByIdAsync(user.roleId)
+    if (!role) {
+      return res.status(401).json(CustomResponse(401, false))
+    }
     if (!roleTypes.includes(role.name)) {
       return res.status(403).json(CustomResponse(403, false))
     }
