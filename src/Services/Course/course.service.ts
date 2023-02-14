@@ -25,35 +25,55 @@ createMap<CourseModel, CourseDto>(
   )
 )
 
-export const GetCourseAsync = async () => {
-  const courses = await uow.CourseRepository.GetAsync()
-  return mapper.mapArray(courses, 'CourseModel', 'CourseDto')
-}
+export default class CourseLogic {
+  /**
+   * GetCoursesAsync
+   */
+  public async GetCoursesAsync() {
+    const courses = await uow.CourseRepository.GetAsync()
+    return mapper.mapArray(courses, 'CourseModel', 'CourseDto')
+  }
 
-export const GetCourseByIdAsync = async (id: string) => {
-  const result = await uow.CourseRepository.GetByIdAsync(id)
-  return mapper.map(result, 'CourseModel', 'CourseDto')
-}
+  /**
+   * GetCourseByIdAsync
+   */
+  public async GetCourseByIdAsync(id: string) {
+    const result = await uow.CourseRepository.GetByIdAsync(id)
+    return mapper.map(result, 'CourseModel', 'CourseDto')
+  }
 
-export const DeleteCourseAsync = async (id: string) => {
-  const result = await uow.CourseRepository.DeleteAsync(id)
-  return result
-}
+  /**
+   * CreateCourseAsync
+   */
+  public async CreateCourseAsync(dto: CourseDto) {
+    const course: CourseModel = mapper.map(dto, 'CourseDto', 'CourseModel')
+    const result = await uow.CourseRepository.CreateAsync(course)
+    return mapper.map(result, 'CourseModel', 'CourseDto')
+  }
 
-export const CreateCourseAsync = async (dto: CourseDto) => {
-  const course: CourseModel = mapper.map(dto, 'CourseDto', 'CourseModel')
-  const result = await uow.CourseRepository.CreateAsync(course)
-  return mapper.map(result, 'CourseModel', 'CourseDto')
-}
+  /**
+   * DeleteCourseAsync
+   */
+  public async DeleteCourseAsync(id: string) {
+    const result = await uow.CourseRepository.DeleteAsync(id)
+    return result
+  }
 
-export const UpdateCourseAsync = async (dto: CourseDto) => {
-  const course: CourseModel = mapper.map(dto, 'CourseDto', 'CourseModel')
-  const result = await uow.CourseRepository.UpdateAsync(dto.id ?? '', course)
-  return result
-}
+  /**
+   * UpdateCourseAsync
+   */
+  public async UpdateCourseAsync(dto: CourseDto) {
+    const course: CourseModel = mapper.map(dto, 'CourseDto', 'CourseModel')
+    const result = await uow.CourseRepository.UpdateAsync(dto.id ?? '', course)
+    return result
+  }
 
-export const CountCourseAsync = async () => {
-  const authorFilter = { author: 'putra' }
-  const courseCount = await uow.CourseRepository.CountAsync(authorFilter)
-  return courseCount
+  /**
+   * CountCourseAsync
+   */
+  public async CountCourseAsync() {
+    const authorFilter = { author: 'putra' }
+    const courseCount = await uow.CourseRepository.CountAsync(authorFilter)
+    return courseCount
+  }
 }
