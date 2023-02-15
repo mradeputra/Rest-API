@@ -2,9 +2,10 @@ import supertest from 'supertest'
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import mongoose from 'mongoose'
 import InitServer from '../Utils/initServer'
-import { CreateRole } from '../Services/Role/role.service'
+import RoleLogic from '../Services/Role/role.service'
 
 const app = InitServer()
+const roleLogic = new RoleLogic()
 const payloadLogin = { email: 'name@random.com', password: 'password' }
 const payloadRegister = { email: 'name@random.com', password: 'password', name: 'name', roleType: 'Admin' }
 let refreshToken = ''
@@ -17,12 +18,14 @@ describe('user', () => {
     await mongoose.connect(db.getUri()).then(() => {
       console.log('Connected to database')
     })
-    await CreateRole({
-      name: 'Admin',
-      description: 'Admin web'
-    }).then(() => {
-      console.log('Created role success')
-    })
+    await roleLogic
+      .CreateRole({
+        name: 'Admin',
+        description: 'Admin web'
+      })
+      .then(() => {
+        console.log('Created role success')
+      })
   })
 
   afterAll(async () => {
