@@ -2,10 +2,27 @@
 import { Request, Response } from 'express-serve-static-core'
 import { roleValidation } from '../../Validations/role.validation'
 import { logger } from '../../Utils/logger'
-import { CreateRole, GetAllRole } from '../../Services/Role/role.service'
+import RoleLogic from '../../Services/Role/role.service'
 import { CustomResponse } from '../../Utils/exceptions'
 
-export const CreateRoleController = async (req: Request, res: Response) => {
+const roleLogic = new RoleLogic()
+export default class RoleController {
+  /**
+   * CreateRole
+   */
+  public CreateRole() {
+    return CreateRoleController
+  }
+
+  /**
+   * GetAllRoles
+   */
+  public GetAllRole() {
+    return GetAllRoleController
+  }
+}
+
+const CreateRoleController = async (req: Request, res: Response) => {
   try {
     const { error, value } = roleValidation(req.body)
     if (error) {
@@ -13,7 +30,7 @@ export const CreateRoleController = async (req: Request, res: Response) => {
       return res.status(422).send(CustomResponse(422, false, { message: error.details[0].message }))
     }
 
-    const dto = await CreateRole(value)
+    const dto = await roleLogic.CreateRole(value)
     logger.info('post role success')
     return res.status(200).send(CustomResponse(200, true, { message: 'Success', data: dto }))
   } catch (error) {
@@ -22,9 +39,9 @@ export const CreateRoleController = async (req: Request, res: Response) => {
   }
 }
 
-export const GetAllRoleController = async (req: Request, res: Response) => {
+const GetAllRoleController = async (req: Request, res: Response) => {
   try {
-    const roles = await GetAllRole()
+    const roles = await roleLogic.GetAllRole()
     logger.info('get roles success')
     return res.status(200).send(CustomResponse(200, true, { message: 'Success', data: roles }))
   } catch (error) {
