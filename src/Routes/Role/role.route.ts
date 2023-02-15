@@ -1,8 +1,8 @@
 import { Router } from 'express'
+import RoleController from '../../Controllers/Role/role.controller'
 import permit from '../../Middleware/auth'
-import { CreateRoleController, GetAllRoleController } from '../../Controllers/Role/role.controller'
 
 export const roleRouter: Router = Router()
-
-roleRouter.get('/', permit('Admin'), GetAllRoleController)
-roleRouter.post('/insert', permit('Admin'), CreateRoleController)
+const controller = new RoleController()
+roleRouter.get('/', permit('Admin'), controller.CreateRole())
+roleRouter.post('/insert', permit('Admin'), controller.GetAllRole())

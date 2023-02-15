@@ -26,13 +26,21 @@ createMap<RoleModel, RoleDto>(
   )
 )
 
-export const CreateRole = async (dto: RoleDto) => {
-  const role: RoleModel = mapper.map<RoleDto, RoleModel>(dto, 'RoleDto', 'RoleModel')
-  const result = await uow.RoleRepository.CreateAsync(role)
-  return mapper.map(result, 'RoleModel', 'RoleDto')
-}
+export default class RoleLogic {
+  /**
+   * CreateRoleo
+   */
+  public async CreateRole(dto: RoleDto) {
+    const role: RoleModel = mapper.map<RoleDto, RoleModel>(dto, 'RoleDto', 'RoleModel')
+    const result = await uow.RoleRepository.CreateAsync(role)
+    return mapper.map(result, 'RoleModel', 'RoleDto')
+  }
 
-export const GetAllRole = async () => {
-  const result = await uow.RoleRepository.GetAsync()
-  return mapper.mapArray(result, 'RoleModel', 'RoleDto')
+  /**
+   * GetAllRole
+   */
+  public async GetAllRole() {
+    const result = await uow.RoleRepository.GetAsync()
+    return mapper.mapArray(result, 'RoleModel', 'RoleDto')
+  }
 }

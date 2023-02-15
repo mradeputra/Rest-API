@@ -1,4 +1,6 @@
 /* eslint-disable no-prototype-builtins */
+import { Response } from 'express'
+
 const STATUS_CODES: Record<number, string> = {
   100: 'Continue',
   101: 'Switching Protocols',
@@ -80,6 +82,16 @@ const checkStatusCode = (statusCode: number, message?: string) => {
   }
 
   return null
+}
+
+export default function HttpObjectResult(
+  res: Response,
+  statusCode: number,
+  status: boolean,
+  data: any,
+  message?: string
+) {
+  return res.status(statusCode).send(CustomResponse(statusCode, status, { data, message }))
 }
 
 // eslint-disable-next-line @typescript-eslint/member-delimiter-style

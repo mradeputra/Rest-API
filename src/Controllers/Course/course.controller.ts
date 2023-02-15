@@ -2,117 +2,156 @@
 import { Request, Response } from 'express-serve-static-core'
 import { logger } from '../../Utils/logger'
 import { courseValidation } from '../../Validations/course.validation'
-import {
-  CountCourseAsync,
-  CreateCourseAsync,
-  DeleteCourseAsync,
-  GetCourseAsync,
-  GetCourseByIdAsync,
-  UpdateCourseAsync
-} from '../../Services/Course/course.service'
-import { CustomResponse } from '../../Utils/exceptions'
+import CourseLogic from '../../Services/Course/course.service'
+import HttpObjectResult from '../../Utils/exceptions'
 
-export const GetCourses = async (req: Request, res: Response) => {
-  try {
-    const courses = await GetCourseAsync()
-    logger.info('get courses success')
-    return res.status(200).send(CustomResponse(200, true, { data: courses }))
-  } catch (error) {
-    logger.error(error)
-    return res.status(400).send(CustomResponse(400, false, { message: `${error}` }))
+const courseLogic = new CourseLogic()
+
+export default class CourseController {
+  /**
+   * GetCourses
+   */
+  public GetCourses() {
+    return GetCourses
+  }
+
+  /**
+   * GetCourse
+   */
+  public GetCourse() {
+    return GetCourse
+  }
+
+  /**
+   * CreateCourse
+   */
+  public CreateCourse() {
+    return CreateCourse
+  }
+
+  /**
+   * UpdateCourse
+   */
+  public UpdateCourse() {
+    return UpdateCourse
+  }
+
+  /**
+   * DeleteCourse
+   */
+  public DeleteCourse() {
+    return DeleteCourse
+  }
+
+  /**
+   * CountCourse
+   */
+  public CountCourse() {
+    return CountCourse
   }
 }
 
-export const GetCourse = async (req: Request, res: Response) => {
+const GetCourses = async (req: Request, res: Response) => {
+  try {
+    const courses = await courseLogic.GetCoursesAsync()
+    logger.info('get courses success')
+    return HttpObjectResult(res, 200, true, courses)
+  } catch (error) {
+    logger.error(error)
+    return HttpObjectResult(res, 400, false, null, `${error}`)
+  }
+}
+
+const GetCourse = async (req: Request, res: Response) => {
   try {
     const {
       params: { id }
     } = req
 
-    const course = await GetCourseByIdAsync(id)
+    const course = await courseLogic.GetCourseByIdAsync(id)
 
     if (course === null) {
       logger.error('get course not found')
-      return res.status(404).send(CustomResponse(404, false))
+      return HttpObjectResult(res, 404, false, null, 'Course not found')
     }
 
     if (id) {
       logger.info('get course success')
-      return res.status(200).send(CustomResponse(200, true, { data: course }))
+      return HttpObjectResult(res, 200, true, course)
     }
   } catch (error) {
     logger.error(error)
-    return res.status(400).send(CustomResponse(400, false, { message: `${error}` }))
+    return HttpObjectResult(res, 400, false, null, `${error}`)
   }
 }
 
-export const CreateCourse = async (req: Request, res: Response) => {
+const CreateCourse = async (req: Request, res: Response) => {
   const { error, value } = courseValidation(req.body)
   if (error) {
     logger.error(`Unable to parse request body: ${error.details[0].message}`)
-    return res.status(422).send(CustomResponse(422, false, { message: error.details[0].message }))
+    return HttpObjectResult(res, 422, false, null, error.details[0].message)
   }
   try {
-    const dto = await CreateCourseAsync(value)
+    const dto = await courseLogic.CreateCourseAsync(value)
 
     logger.info('post course success')
-    return res.status(201).send(CustomResponse(201, true, { data: dto }))
+    return HttpObjectResult(res, 201, true, dto)
   } catch (error) {
     logger.error(error)
-    return res.status(500).send(CustomResponse(500, false, { message: `${error}` }))
+    return HttpObjectResult(res, 500, false, null, `${error}`)
   }
 }
 
-export const UpdateCourse = async (req: Request, res: Response) => {
+const UpdateCourse = async (req: Request, res: Response) => {
   const { error, value } = courseValidation(req.body)
   if (error) {
     logger.error(`Unable to parse request body: ${error.details[0].message}`)
-    return res.status(422).send(CustomResponse(422, false, { message: error.details[0].message }))
+    return HttpObjectResult(res, 422, false, null, error.details[0].message)
   }
   try {
-    const isUpdated = await UpdateCourseAsync(value)
+    const isUpdated = await courseLogic.UpdateCourseAsync(value)
     if (!isUpdated) {
       logger.error('Update course failed')
-      return res.status(400).send(CustomResponse(400, false, { message: 'Update course failed' }))
+      return HttpObjectResult(res, 400, false, null, 'update course failed')
     }
 
     logger.info('Update course success')
-    return res.status(200).send(CustomResponse(200, true, { data: value }))
+    return HttpObjectResult(res, 200, true, value)
   } catch (error) {
     logger.error(error)
-    return res.status(400).send(CustomResponse(400, false, { message: `${error}` }))
+    return HttpObjectResult(res, 400, false, null, `${error}`)
   }
 }
 
-export const DeleteCourse = async (req: Request, res: Response) => {
+const DeleteCourse = async (req: Request, res: Response) => {
   const {
     params: { id }
   } = req
 
   try {
-    const isDeleted = await DeleteCourseAsync(id)
+    const isDeleted = await courseLogic.DeleteCourseAsync(id)
 
     if (!isDeleted) {
       logger.error('delete course failed')
-      return res.status(400).send(CustomResponse(400, false, { message: 'delete course failed' }))
+      return HttpObjectResult(res, 400, false, null, 'delete course failed')
     }
 
     if (id) {
       logger.info('delete course success')
-      return res.status(202).send(CustomResponse(202, true))
+      return HttpObjectResult(res, 202, true, null)
     }
   } catch (error) {
     logger.error(error)
-    return res.status(500).send(CustomResponse(500, false, { message: `${error}` }))
+    return HttpObjectResult(res, 500, false, null, `${error}`)
   }
 }
 
-export const CountCourse = async (req: Request, res: Response) => {
+const CountCourse = async (req: Request, res: Response) => {
   try {
-    const count = await CountCourseAsync()
-    return res.status(200).send(CustomResponse(200, true, { data: { count } }))
+    const count = await courseLogic.CountCourseAsync()
+    return HttpObjectResult(res, 200, true, count)
   } catch (error) {
     logger.error(error)
-    return res.status(500).send(CustomResponse(500, false, { message: `${error}` }))
+    return HttpObjectResult(res, 500, false, null, `${error}`)
   }
 }
