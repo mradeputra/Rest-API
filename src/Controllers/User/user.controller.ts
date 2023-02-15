@@ -2,80 +2,108 @@
 import { Request, Response } from 'express-serve-static-core'
 import { logger } from '../../Utils/logger'
 import { refreshLoginValidation, userLoginValidation, userValidation } from '../../Validations/user.validation'
-import { RegisterUser, GetAllUser, LoginUser, refreshAccessToken } from '../../Services/User/user.service'
-import { CustomResponse } from '../../Utils/exceptions'
+import HttpObjectResult from '../../Utils/exceptions'
+import UserLogic from '../../Services/User/user.service'
 
-export const RegisterUserController = async (req: Request, res: Response) => {
+const userLogic = new UserLogic()
+
+export default class UserController {
+  /**
+   * RegisterUser
+   */
+  public RegisterUser() {
+    return RegisterUserController
+  }
+
+  /**
+   * GetAllUser
+   */
+  public GetAllUser() {
+    return GetAllUserController
+  }
+
+  /**
+   * LoginUser
+   */
+  public LoginUser() {
+    return LoginUserController
+  }
+
+  /**
+   * RefreshUser
+   */
+  public RefreshUser() {
+    return RefreshUserController
+  }
+}
+
+const RegisterUserController = async (req: Request, res: Response) => {
   try {
     const { error, value } = userValidation(req.body)
     if (error) {
       logger.error(`Unable to parse request body: ${error.details[0].message}`)
-      return res.status(422).send(CustomResponse(422, false, { message: error.details[0].message }))
+      return HttpObjectResult(res, 422, false, null, error.details[0].message)
     }
 
-    const dto = await RegisterUser(value)
+    const dto = await userLogic.RegisterUser(value)
 
     logger.info('post user success')
-    return res.status(201).send(CustomResponse(201, true, { data: dto }))
+    return HttpObjectResult(res, 201, true, dto)
   } catch (error) {
     logger.error(error)
     const err: any = error
     const msg: string = err.message
     if (msg.includes('11000')) {
-      return res.status(400).send(CustomResponse(400, false, { message: 'User already exist' }))
+      return HttpObjectResult(res, 400, false, null, 'User already exist')
     }
-    return res.status(500).send(CustomResponse(500, false, { message: msg }))
+    return HttpObjectResult(res, 500, false, null, `${(error as any).message}`)
   }
 }
 
-export const GetAllUserController = async (req: Request, res: Response) => {
+const GetAllUserController = async (req: Request, res: Response) => {
   try {
-    const users = await GetAllUser()
+    const users = await userLogic.GetAllUser()
 
     logger.info('get users success')
-    return res.status(200).send(CustomResponse(200, true, { data: users }))
+    return HttpObjectResult(res, 200, true, users)
   } catch (error) {
     logger.error(error)
-    return res.status(500).send(CustomResponse(500, false, { message: `${error}` }))
+    return HttpObjectResult(res, 500, false, null, `${(error as any).message}`)
   }
 }
 
-export const LoginUserController = async (req: Request, res: Response) => {
+const LoginUserController = async (req: Request, res: Response) => {
   try {
     const { error, value } = userLoginValidation(req.body)
     if (error) {
       logger.error(`Unable to parse request body: ${error.details[0].message}`)
-      return res.status(422).send(CustomResponse(422, false, { message: error.details[0].message }))
+      return HttpObjectResult(res, 422, false, null, error.details[0].message)
     }
 
-    const token = await LoginUser(value)
+    const token = await userLogic.LoginUser(value)
     logger.info('Login success')
-    return res.status(200).send(CustomResponse(200, true, { data: { expire: 60, ...token } }))
+    return HttpObjectResult(res, 200, true, { expire: 60, ...token })
   } catch (error) {
     logger.error(error)
 
-    return res
-      .status(500)
-      .send(CustomResponse(500, false, { message: `${error}`, data: { expire: 0, accessToken: '' } }))
+    return HttpObjectResult(res, 500, false, null, `${(error as any).message}`)
   }
 }
 
-export const RefreshUserController = async (req: Request, res: Response) => {
+const RefreshUserController = async (req: Request, res: Response) => {
   try {
     const { error, value } = refreshLoginValidation(req.body)
     if (error) {
       logger.error(`Unable to parse request body: ${error.details[0].message}`)
-      return res.status(422).send(CustomResponse(422, false, { message: error.details[0].message }))
+      return HttpObjectResult(res, 422, false, null, error.details[0].message)
     }
 
-    const token = await refreshAccessToken(value.refreshToken)
+    const token = await userLogic.RefreshAccessToken(value.refreshToken)
     logger.info('refresh token success')
-    return res.status(200).send(CustomResponse(200, true, { data: { expire: 60, accessToken: token } }))
+    return HttpObjectResult(res, 200, true, { expire: 60, accessToken: token })
   } catch (error) {
     logger.error(error)
 
-    return res
-      .status(500)
-      .send(CustomResponse(500, false, { message: `${error}`, data: { expire: 0, accessToken: '' } }))
+    return HttpObjectResult(res, 500, false, null, `${(error as any).message}`)
   }
 }

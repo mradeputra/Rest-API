@@ -1,15 +1,11 @@
 import { Router } from 'express'
 import permit from '../../Middleware/auth'
-import {
-  RegisterUserController,
-  GetAllUserController,
-  LoginUserController,
-  RefreshUserController
-} from '../../Controllers/User/user.controller'
+import UserController from '../../Controllers/User/user.controller'
 
 export const userRouter: Router = Router()
+const controller = new UserController()
 
-userRouter.get('/', permit('Admin'), GetAllUserController)
-userRouter.post('/register', RegisterUserController)
-userRouter.post('/login', LoginUserController)
-userRouter.post('/refresh', RefreshUserController)
+userRouter.get('/', permit('Admin'), controller.GetAllUser())
+userRouter.post('/register', controller.RegisterUser())
+userRouter.post('/login', controller.LoginUser())
+userRouter.post('/refresh', controller.RefreshUser())

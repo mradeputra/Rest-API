@@ -3,8 +3,9 @@ import { MongoMemoryServer } from 'mongodb-memory-server'
 import mongoose from 'mongoose'
 import InitServer from '../Utils/initServer'
 import { CreateRole } from '../Services/Role/role.service'
-import { LoginUser, RegisterUser } from '../Services/User/user.service'
+import UserLogic from '../Services/User/user.service'
 
+const userLogic = new UserLogic()
 const app = InitServer()
 const payloadLogin = { email: 'name@random.com', password: 'password' }
 const payloadRegister = { email: 'name@random.com', password: 'password', name: 'name', roleType: 'Admin' }
@@ -26,9 +27,9 @@ describe('course', () => {
       console.log('Created role success')
     })
 
-    await RegisterUser({ ...payloadRegister })
+    await userLogic.RegisterUser({ ...payloadRegister })
 
-    const { accessToken, refreshToken } = await LoginUser({ ...payloadLogin })
+    const { accessToken, refreshToken } = await userLogic.LoginUser({ ...payloadLogin })
     accToken = accessToken
     refToken = refreshToken
   })
